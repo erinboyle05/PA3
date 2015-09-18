@@ -9,52 +9,53 @@ rankall <- function(outcome, num = "best") {
               names(rawdata) <- c("hospital", "state", "heart attack")
               rawdata[,2] <- as.factor(rawdata[,2])
               rawdata[,3] <- suppressWarnings(as.numeric(rawdata[,3]))
-#               orderdata <- rawdata[order(rawdata[,3], rawdata[,1]),]
-#               orderdata <- orderdata[complete.cases(orderdata),]
         }
         else if (outcome == "heart failure") {
                 rawdata <- read.csv(file_name, colClasses = "character")[,c(2,7,17)]
                 names(rawdata) <- c("hospital", "state", "heart failure")
                 rawdata[,2] <- as.factor(rawdata[,2])
                 rawdata[,3] <- suppressWarnings(as.numeric(rawdata[,3]))
-#                 orderdata <- rawdata[order(rawdata[,3], rawdata[,1]),]
-#                 orderdata <- orderdata[complete.cases(orderdata),]
         }
         else if (outcome == "pneumonia") {
                 rawdata <- read.csv(file_name, colClasses = "character")[,c(2,7,23)]
                 names(rawdata) <- c("hospital", "state", "pneumonia")
                 rawdata[,2] <- as.factor(rawdata[,2])
                 rawdata[,3] <- suppressWarnings(as.numeric(rawdata[,3]))
-#                 orderdata <- rawdata[order(rawdata[,3], rawdata[,1]),]
-#                 orderdata <- orderdata[complete.cases(orderdata),]
         }
         else {
                 stop('invalid outcome')
         }
-        
         states <- levels(rawdata[,2])
-        output <- vector()
+        output <- data.frame()
         for (i in 1:length(states)) {
                 statedata <- rawdata[grep(states[i], rawdata[,2]),]
                 if (num == "best") {
-                        num == 1
+#                         num == 1
+                        statedata <- statedata[complete.cases(statedata),]
+                        orderdata <- statedata[order(statedata[,3],
+                                        statedata[,1]),]
+                        output <- rbind.data.frame(output, orderdata[1,1:2])
+                        
                 }
                 else if (num == "worst") {
-                        num = nrow(statedata$state)
+                        orderdata <- statedata[order(statedata[,3],
+                                        statedata[,1],decreasing = TRUE),]
+                        statedata <- statedata[complete.cases(statedata),]
+                        output <- rbind.data.frame(output, orderdata[1,1:2])
+                        
                 }
-                else if (num > nrow(statedata$state)) {
-                        state <- states[i]
-                        output <- append(output, as.character(statedata["NA",1]))
-                        output <- append(output, as.character(statedata[state,2]))
+                else {
+                        statedata <- statedata[complete.cases(statedata),]
+                        orderdata <- statedata[order(statedata[,3],
+                                                     statedata[,1]),]
+                        output <- rbind.data.frame(output, orderdata[num,1:2]) 
                 }
-                orderdata <- statedata[order(statedata[,3]),]
-                orderdata <- orderdata[complete.cases(orderdata),]
-                output <- append(output, as.character(orderdata[num,1]))
-                output <- append(output, as.character(orderdata[num,2]))
+                        
+
         }
-        output <- as.data.frame(matrix(output, length(states), 2, byrow = TRUE))
-        colnames(output) <- c("hospital", "state")
+#         output <- as.data.frame(matrix(output, length(states), 2, byrow = TRUE))
+#         colnames(output) <- c("hospital", "state")
 #         rownames(output) <- output[,2]
-        return(output)
-        # statedata
+#         return(output)
+        output
 }
